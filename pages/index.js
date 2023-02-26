@@ -21,12 +21,21 @@ const DUMMY_MEETUPS = [
   },
 ];
 
-function HomePage() {
+function HomePage(props) {
   return (
     <React.Fragment>
-      <MeetupList meetups={DUMMY_MEETUPS}></MeetupList>
+      <MeetupList meetups={props.meetups}></MeetupList>
     </React.Fragment>
   );
+}
+
+export async function getStaticProps() {
+  // fetch data here
+  return {
+    props: {
+      meetups: DUMMY_MEETUPS,
+    },
+  };
 }
 
 export default HomePage;
