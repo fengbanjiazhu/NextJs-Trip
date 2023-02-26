@@ -22,7 +22,11 @@ const DUMMY_MEETUPS = [
 ];
 
 function HomePage() {
-  return <MeetupList meetups={DUMMY_MEETUPS}></MeetupList>;
+  return (
+    <React.Fragment>
+      <MeetupList meetups={DUMMY_MEETUPS}></MeetupList>
+    </React.Fragment>
+  );
 }
 
 export default HomePage;
