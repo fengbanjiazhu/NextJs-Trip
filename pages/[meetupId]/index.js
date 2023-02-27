@@ -1,4 +1,5 @@
 import React from "react";
+import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 
 const DUMMY_MEETUPS = [
@@ -21,48 +22,60 @@ const DUMMY_MEETUPS = [
   },
 ];
 
-function meetupDetails() {
+function meetupDetails(props) {
   return (
     <MeetupDetail
-      title="A First Trip"
-      image="https://upload.wikimedia.org/wikipedia/commons/3/3c/Kiyomizu.jpg"
-      address="Some street Kyoto Japan"
-      description="Kyoto , officially Kyoto City , is the capital city of Kyoto Prefecture in Japan. Located in the Kansai region on the island of Honshu, Kyoto forms a part of the Keihanshin metropolitan area along with Osaka and Kobe."
+      title={props.meetupData.title}
+      image={props.meetupData.image}
+      address={props.meetupData.address}
+      description={props.meetupData.description}
     ></MeetupDetail>
   );
 }
 
 export async function getStaticPaths() {
+  const client = await MongoClient.connect(
+    "mongodb+srv://jeffnext:lGvXSLjT9OKYVXNO@cluster.psx2gf1.mongodb.net/?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const data = await meetupsCollection.find({}, { _id: 1 }).toArray();
+
+  const meetups = data.map((meetup) => ({ params: { meetupId: meetup._id.toString() } }));
+
+  client.close();
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: "m1",
-        },
-      },
-      {
-        params: {
-          meetupId: "m2",
-        },
-      },
-    ],
+    paths: meetups,
   };
 }
 
 export async function getStaticProps(context) {
-  const meetupId = context.params.meetupId;
-  // console.log(meetupId);
+  const meetupId = new ObjectId(context.params.meetupId);
+
+  const client = await MongoClient.connect(
+    "mongodb+srv://jeffnext:lGvXSLjT9OKYVXNO@cluster.psx2gf1.mongodb.net/?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const selectedData = await meetupsCollection.findOne({ _id: meetupId });
+
+  client.close();
 
   return {
     props: {
       meetupData: {
-        id: meetupId,
-        title: "A First Trip",
-        image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Kiyomizu.jpg",
-        address: "Some street Kyoto Japan",
-        description:
-          "Kyoto , officially Kyoto City , is the capital city of Kyoto Prefecture in Japan. Located in the Kansai region on the island of Honshu, Kyoto forms a part of the Keihanshin metropolitan area along with Osaka and Kobe.",
+        id: selectedData._id.toString(),
+        title: selectedData.title,
+        image: selectedData.image,
+        address: selectedData.address,
+        description: selectedData.description,
       },
     },
   };
