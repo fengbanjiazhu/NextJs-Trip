@@ -32,4 +32,40 @@ function meetupDetails() {
   );
 }
 
+export async function getStaticPaths() {
+  return {
+    fallback: false,
+    paths: [
+      {
+        params: {
+          meetupId: "m1",
+        },
+      },
+      {
+        params: {
+          meetupId: "m2",
+        },
+      },
+    ],
+  };
+}
+
+export async function getStaticProps(context) {
+  const meetupId = context.params.meetupId;
+  // console.log(meetupId);
+
+  return {
+    props: {
+      meetupData: {
+        id: meetupId,
+        title: "A First Trip",
+        image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Kiyomizu.jpg",
+        address: "Some street Kyoto Japan",
+        description:
+          "Kyoto , officially Kyoto City , is the capital city of Kyoto Prefecture in Japan. Located in the Kansai region on the island of Honshu, Kyoto forms a part of the Keihanshin metropolitan area along with Osaka and Kobe.",
+      },
+    },
+  };
+}
+
 export default meetupDetails;
